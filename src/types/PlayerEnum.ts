@@ -1,4 +1,4 @@
 export enum PlayerEnum {
-    "AI",
-    "Human",
+    AI = "AI",
+    Human = "Human",
 }

@@ -1,15 +1,19 @@
+import { generateMatches } from "../helpers/generateMatches";
+import { MatchInterface } from "../types/MatchInterface";
 import { PlayerEnum } from "../types/PlayerEnum";
 
 interface RoundReducerStateInterface {
     turn: PlayerEnum;
-    heap: number;
-    score: { [key in PlayerEnum]: number };
+    heap: string[];
+    score: { [key in PlayerEnum]: string[] };
+    matches: MatchInterface[];
+    selectedMatches: string[];
 }
 
-interface RoundReducerProps {
+export interface RoundReducerProps {
     type: ActionsRoundReducerEnum;
     playerId?: PlayerEnum;
-    count?: number;
+    matchId?: string;
 }
 
 enum ActionsRoundReducerEnum {
@@ -17,47 +21,99 @@ enum ActionsRoundReducerEnum {
     ADD_PLAYER_SCORE = "ADD_PLAYER_SCORE",
     REDUCE_HEAP_SIZE = "REDUCE_HEAP_SIZE",
     ROUND_RESET = "ROUND_RESET",
+    SELECT_MATCH = "SELECT_MATCH",
+    UNSELECT_MATCH = "UNSELECT_MATCH",
 }
 
-const defaultState: RoundReducerStateInterface = {
-    score: {
-        [PlayerEnum.Human]: 0,
-        [PlayerEnum.AI]: 0,
-    },
-    heap: 25,
-    turn: PlayerEnum.Human,
-};
+function generateDefaultState(): RoundReducerStateInterface {
+    let state: RoundReducerStateInterface = {
+        score: {
+            [PlayerEnum.Human]: [],
+            [PlayerEnum.AI]: [],
+        },
+        matches: [],
+        selectedMatches: [],
+        heap: [],
+        turn: PlayerEnum.Human,
+    };
+    state.matches = generateMatches();
+    state.heap = state.matches.map((match) => match.id);
+    return state;
+}
 
 function roundReducer(
-    state = defaultState,
-    { type, playerId, count }: RoundReducerProps
+    state: RoundReducerStateInterface | null = null,
+    { type, playerId, matchId }: RoundReducerProps
 ) {
+    if (!state) {
+        state = generateDefaultState();
+    }
     if (type === ActionsRoundReducerEnum.SET_TURN) {
         return {
             ...state,
             turn: playerId,
         };
     }
+
     if (type === ActionsRoundReducerEnum.ADD_PLAYER_SCORE) {
-        if (!playerId || !count) return state;
-        return {
-            ...state,
-            score: {
-                ...state.score,
-                [playerId]: state.score[playerId] + count,
-            },
-        };
-    }
-    if (type === ActionsRoundReducerEnum.REDUCE_HEAP_SIZE) {
-        if (!count) return state;
+        const toAdd = state.selectedMatches;
+        const newHeap = state.heap.filter(
+            (item: string) => !state?.selectedMatches.includes(item)
+        );
 
         return {
             ...state,
-            heap: state.heap - count,
+            heap: newHeap,
+            selectedMatches: [],
+            score: {
+                ...state.score,
+                [state.turn]: [...state.score[state.turn], ...toAdd],
+            },
         };
     }
+
+    if (type === ActionsRoundReducerEnum.SELECT_MATCH) {
+        if (!matchId) {
+            return state;
+        }
+
+        if (!state.heap.includes(matchId)) {
+            return state;
+        }
+
+        return {
+            ...state,
+            selectedMatches: [...state.selectedMatches, matchId],
+        };
+    }
+
+    if (type === ActionsRoundReducerEnum.UNSELECT_MATCH) {
+        if (!matchId) {
+            return state;
+        }
+
+        if (!state.selectedMatches.includes(matchId)) {
+            return state;
+        }
+
+        const matchIndex = state.selectedMatches.indexOf(matchId);
+
+        if (matchIndex === undefined) {
+            return state;
+        }
+
+        const selectedMatches = state.selectedMatches.filter(
+            (match: string) => match !== matchId
+        );
+
+        return {
+            ...state,
+            selectedMatches: [...selectedMatches],
+        };
+    }
+
     if (type === ActionsRoundReducerEnum.ROUND_RESET) {
-        return defaultState;
+        return generateDefaultState();
     }
     return state;
 }
@@ -66,17 +122,24 @@ const actionSetTurn = (playerId: PlayerEnum) => ({
     type: ActionsRoundReducerEnum.SET_TURN,
     playerId,
 });
-const actionAddPlayerScore = (playerId: PlayerEnum, count: number) => ({
+const actionAddPlayerScore = () => ({
     type: ActionsRoundReducerEnum.ADD_PLAYER_SCORE,
-    playerId,
-    count,
 });
-const actionReduceHeapSize = (count: number) => ({
+const actionReduceHeapSize = (matchId: number) => ({
     type: ActionsRoundReducerEnum.REDUCE_HEAP_SIZE,
-    count,
+    matchId,
 });
 const actionResetRound = () => ({
-    type: ActionsRoundReducerEnum.SET_TURN,
+    type: ActionsRoundReducerEnum.ROUND_RESET,
+});
+
+const actionSelectMatch = (matchId: string) => ({
+    type: ActionsRoundReducerEnum.SELECT_MATCH,
+    matchId,
+});
+const actionUnselectMatch = (matchId: string) => ({
+    type: ActionsRoundReducerEnum.UNSELECT_MATCH,
+    matchId,
 });
 
 export {
@@ -86,4 +149,6 @@ export {
     actionReduceHeapSize,
     actionResetRound,
     actionAddPlayerScore,
+    actionSelectMatch,
+    actionUnselectMatch,
 };
