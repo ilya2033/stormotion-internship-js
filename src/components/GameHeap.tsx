@@ -5,22 +5,26 @@ import {
     actionSelectMatch,
     actionUnselectMatch,
 } from "../reducers/roundReducer";
+import { StoreStateInterface } from "../types/StoreInteface";
 import { Heap } from "./Heap";
 import { Match } from "./Match";
 
 const GameHeap: FC = () => {
     const dispatch = useDispatch();
     const selectedMatches: string[] = useSelector(
-        (state: any) => state?.round?.selectedMatches || []
+        (state: StoreStateInterface) => state?.round?.selectedMatches || []
     );
     const matches: string[] = useSelector(
-        (state: any) => state?.round?.heap || []
+        (state: StoreStateInterface) => state?.round?.heap || []
+    );
+    const settings = useSelector(
+        (state: StoreStateInterface) => state?.settings || { m: 3 }
     );
 
     const selectMatch = (matchId: string) => {
         if (selectedMatches.includes(matchId)) {
             dispatch(actionUnselectMatch(matchId));
-        } else if (selectedMatches.length < 3) {
+        } else if (settings.m && selectedMatches.length < settings.m) {
             dispatch(actionSelectMatch(matchId));
         }
     };

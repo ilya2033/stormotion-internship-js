@@ -1,22 +1,22 @@
 import { Box, Button, Modal, Typography } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { actionResetRound } from "../reducers/roundReducer";
+import { AnyAction } from "redux";
+import { actionResetRoundFull } from "../actions/actionResetRoundFull";
 import { PlayerEnum } from "../types/PlayerEnum";
+import { StoreStateInterface } from "../types/StoreInteface";
 
 const EndGameModal: FC = () => {
     const dispatch = useDispatch();
     const score = useSelector(
-        (state: any) => state.round.score[PlayerEnum.Human]
+        (state: StoreStateInterface) => state.round.score[PlayerEnum.Human]
     );
-    const heap = useSelector((state: any) => state.round.heap);
+    const heap = useSelector((state: StoreStateInterface) => state.round.heap);
     const [isOpen, setIsOpen] = useState(false);
     const [isWinner, setIsWinner] = useState(false);
 
     useEffect(() => {
         if (heap.length === 0) {
-            console.log(score.length);
-            console.log(score.length % 2);
             setIsWinner(score.length % 2 === 0);
             setIsOpen(true);
         }
@@ -43,7 +43,9 @@ const EndGameModal: FC = () => {
                     sx={{ margin: "5px auto" }}
                     variant="contained"
                     onClick={() =>
-                        dispatch(actionResetRound()) && setIsOpen(false)
+                        dispatch(
+                            actionResetRoundFull() as unknown as AnyAction
+                        ) && setIsOpen(false)
                     }
                 >
                     Repeat

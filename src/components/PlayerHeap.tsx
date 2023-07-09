@@ -1,7 +1,8 @@
 import { Box, Grid } from "@mui/material";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { useSelector } from "react-redux";
 import { PlayerEnum } from "../types/PlayerEnum";
+import { StoreStateInterface } from "../types/StoreInteface";
 import { Heap } from "./Heap";
 import { Match } from "./Match";
 
@@ -11,7 +12,7 @@ interface PlayerHeapProps {
 
 const PlayerHeap: FC<PlayerHeapProps> = ({ player }) => {
     const matches: string[] = useSelector(
-        (state: any) => state.round.score[player]
+        (state: StoreStateInterface) => state.round.score[player]
     );
 
     const getMatches = () => {

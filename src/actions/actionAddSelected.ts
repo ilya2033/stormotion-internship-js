@@ -1,15 +1,22 @@
+import { AppDispatch, RootState } from "../reducers";
 import { actionAddPlayerScore } from "../reducers/roundReducer";
 import { actionSwitchTurn } from "./actionSwitchTurn";
 
-const actionAddSelected = () => async (dispatch: any, getState: any) => {
-    const selectedMatches = getState().round.selectedMatches;
+const actionAddSelected =
+    () => async (dispatch: AppDispatch, getState: () => RootState) => {
+        const selectedMatches = getState().round.selectedMatches;
+        const settings = getState().settings;
 
-    if (!selectedMatches?.length || selectedMatches.length > 3) {
-        return;
-    }
+        if (
+            !settings.m ||
+            !selectedMatches?.length ||
+            selectedMatches.length > settings.m
+        ) {
+            return;
+        }
 
-    await dispatch(actionAddPlayerScore());
-    await dispatch(actionSwitchTurn());
-};
+        await dispatch(actionAddPlayerScore());
+        await dispatch(actionSwitchTurn());
+    };
 
 export { actionAddSelected };

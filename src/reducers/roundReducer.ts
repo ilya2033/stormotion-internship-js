@@ -1,19 +1,13 @@
 import { generateMatches } from "../helpers/generateMatches";
 import { MatchInterface } from "../types/MatchInterface";
 import { PlayerEnum } from "../types/PlayerEnum";
+import { RoundReducerStateInterface } from "../types/RoundInterface";
 
-interface RoundReducerStateInterface {
-    turn: PlayerEnum;
-    heap: string[];
-    score: { [key in PlayerEnum]: string[] };
-    matches: MatchInterface[];
-    selectedMatches: string[];
-}
-
-export interface RoundReducerProps {
+interface RoundReducerProps {
     type: ActionsRoundReducerEnum;
     playerId?: PlayerEnum;
     matchId?: string;
+    matches?: MatchInterface[];
 }
 
 enum ActionsRoundReducerEnum {
@@ -23,6 +17,7 @@ enum ActionsRoundReducerEnum {
     ROUND_RESET = "ROUND_RESET",
     SELECT_MATCH = "SELECT_MATCH",
     UNSELECT_MATCH = "UNSELECT_MATCH",
+    SET_MATCHES = "SET_MATCHES",
 }
 
 function generateDefaultState(): RoundReducerStateInterface {
@@ -43,15 +38,29 @@ function generateDefaultState(): RoundReducerStateInterface {
 
 function roundReducer(
     state: RoundReducerStateInterface | null = null,
-    { type, playerId, matchId }: RoundReducerProps
-) {
+    { type, playerId, matchId, matches }: RoundReducerProps
+): RoundReducerStateInterface {
     if (!state) {
         state = generateDefaultState();
     }
     if (type === ActionsRoundReducerEnum.SET_TURN) {
+        if (!playerId) {
+            return state;
+        }
         return {
             ...state,
             turn: playerId,
+        };
+    }
+
+    if (type === ActionsRoundReducerEnum.SET_MATCHES) {
+        if (!matches?.length) {
+            return state;
+        }
+        return {
+            ...state,
+            matches,
+            heap: matches.map((match) => match.id),
         };
     }
 
@@ -141,7 +150,10 @@ const actionUnselectMatch = (matchId: string) => ({
     type: ActionsRoundReducerEnum.UNSELECT_MATCH,
     matchId,
 });
-
+const actionSetMatches = (matches: MatchInterface[]) => ({
+    type: ActionsRoundReducerEnum.SET_MATCHES,
+    matches,
+});
 export {
     ActionsRoundReducerEnum,
     roundReducer,
@@ -151,4 +163,5 @@ export {
     actionAddPlayerScore,
     actionSelectMatch,
     actionUnselectMatch,
+    actionSetMatches,
 };
