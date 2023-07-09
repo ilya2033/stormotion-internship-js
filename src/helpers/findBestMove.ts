@@ -13,34 +13,32 @@ function findBestMove(
     let bestScore = -Infinity;
     let bestMove: number = 1;
 
-    if (matches <= 3 && isEven(matches - 1)) {
-        return matches - 1;
-    }
-
-    if (
-        matchesPickedByOtherPlayer >= 2 &&
-        matchesPickedByOtherPlayer % 2 === 0
-    ) {
-        const trapMove = matchesPickedByOtherPlayer % 4;
-        if (trapMove > 0 && matches >= trapMove) {
-            return trapMove;
-        }
+    if (matches <= 3 && isEven(totalPickedMatches + matches)) {
+        return totalPickedMatches + matches;
     }
 
     for (let i = 1; i <= 3; i++) {
         if (matches >= i) {
-            const score = minimax(
+            let score = minimax(
                 matches - i,
                 totalPickedMatches + i,
                 4,
                 false,
                 memo
             );
+            if (isEven(matchesPickedByOtherPlayer + i)) {
+                score--;
+            }
+
             if (score > bestScore) {
                 bestScore = score;
                 bestMove = i;
             }
         }
+    }
+
+    while (matches > 4 && matches - bestMove <= 3) {
+        bestMove--;
     }
 
     return bestMove;
