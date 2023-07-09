@@ -1,2 +1,2 @@
-#Stormotion | Internship JS Test Task
+# Stormotion | Internship JS Test Task
 
