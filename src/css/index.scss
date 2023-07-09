@@ -1,0 +1,70 @@
+.App {
+    height: 100vh;
+}
+.Match {
+    height: 200px;
+    width: 35px;
+    &__body {
+        background-color: #d7ba89;
+        height: 75%;
+        width: 100%;
+    }
+    &__head {
+        background-color: #800808;
+        height: 25%;
+        width: 100%;
+    }
+
+    &:hover &__head {
+        background-color: #c50a20;
+    }
+    &.active &__head {
+        background-color: #db0f27;
+    }
+}
+
+.Field {
+    width: 75%;
+    & .GameHeap {
+        overflow-y: auto;
+        padding: 7px 10px;
+        border: 1px solid red;
+        border-radius: 15px;
+        flex-grow: 1;
+
+        & .Match {
+            cursor: pointer;
+        }
+    }
+
+    & .PlayerHeap {
+        overflow-y: auto;
+        padding: 7px 10px;
+        border: 1px solid yellowgreen;
+        border-radius: 15px;
+        height: 25%;
+    }
+}
+
+.SideMenu {
+    height: 100%;
+    width: 23%;
+    margin-left: auto;
+}
+
+.Modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: white;
+    border: 1px solid #bdbdbd;
+    border-radius: 15px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 24px;
+    padding: 40px;
+}
